@@ -7,7 +7,7 @@ typedef pair<int, int> ii;
 #define file_read(x,y) freopen(x, "r", stdin); \
 						freopen(y, "w", stdout);
 int currState = -1, currIndex = 0, n;
-vector<pair<ii, char>> transitions;
+set<pair<ii, char>> transitions;
 typedef struct nfa {
 	int start_state = -1, end_state = -1;
 	vector<struct nfa> nfas;
@@ -29,20 +29,21 @@ NFA createNFA(int type) {
 				x.start_state = ++currState;
 				x.end_state = ++currState;
 				NFA b = currNFA.nfas[currNFA.nfas.size() - 1];
-				transitions.pb({{b.end_state, x.start_state}, 'E'});
-				transitions.pb({{x.start_state, x.end_state}, c});
+				transitions.insert({{b.end_state, x.start_state}, 'E'});
+				transitions.insert({{x.start_state, x.end_state}, c});
 				currNFA.nfas.pb(x);
 			}
 			if (c == '(') {
 				NFA x = createNFA(0);
 				NFA b = currNFA.nfas[currNFA.nfas.size() - 1];
-				transitions.pb({{b.end_state, x.start_state}, 'E'});
+				transitions.insert({{b.end_state, x.start_state}, 'E'});
 				currNFA.nfas.pb(x);
 			}
 			if (c == '*') {
 				NFA a = currNFA.nfas[currNFA.nfas.size() - 1];
 				NFA b = currNFA.nfas[currNFA.nfas.size() - 2];
-				transitions.pb({{a.end_state, a.start_state}, 'E'});
+				transitions.insert({{a.end_state, a.start_state}, 'E'});
+				transitions.insert({{a.start_state, a.end_state}, 'E'});
 			}
 			if (c == '+') {
 				currIndex++;
@@ -61,8 +62,8 @@ NFA createNFA(int type) {
 			currNFA.nfas.pb(createNFA(1));
 		}
 		for (auto& s : currNFA.nfas) {
-			transitions.pb({{currNFA.start_state, s.start_state}, 'E'});
-			transitions.pb({{s.end_state, currNFA.end_state}, 'E'});
+			transitions.insert({{currNFA.start_state, s.start_state}, 'E'});
+			transitions.insert({{s.end_state, currNFA.end_state}, 'E'});
 		}
 	}
 	return currNFA;
@@ -80,7 +81,10 @@ int main(int argc, char* argv[]){
 	NFA x = createNFA(0);
 	cout << currState + 1 << " " << transitions.size() << " " << 1 << "\n";
 	cout << x.end_state << "\n";
+	//for (auto& s : transitions) {
+	//	cout << s.ff.ff << " " << s.ss << " " << s.ff.ss << "\n";
+	//}
 	for (auto& s : transitions) {
-		cout << s.ff.ff << " " << s.ss << " " << s.ff.ss << "\n";
+		cout << s.ff.ff << " " << s.ff.ss << " " << s.ss << "\n";
 	}
 }
