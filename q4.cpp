@@ -26,9 +26,11 @@ NFA createNFA(int type) {
 			char c = str[currIndex];
 			if (c >= 'a' && c <= 'z') {
 				NFA x;
-				x.start_state = x.end_state = ++currState;
+				x.start_state = ++currState;
+				x.end_state = ++currState;
 				NFA b = currNFA.nfas[currNFA.nfas.size() - 1];
-				transitions.pb({{b.end_state, x.start_state}, c});
+				transitions.pb({{b.end_state, x.start_state}, 'E'});
+				transitions.pb({{x.start_state, x.end_state}, c});
 				currNFA.nfas.pb(x);
 			}
 			if (c == '(') {
@@ -40,7 +42,7 @@ NFA createNFA(int type) {
 			if (c == '*') {
 				NFA a = currNFA.nfas[currNFA.nfas.size() - 1];
 				NFA b = currNFA.nfas[currNFA.nfas.size() - 2];
-				transitions.pb({{a.end_state, b.start_state}, 'E'});
+				transitions.pb({{a.end_state, a.start_state}, 'E'});
 			}
 			if (c == '+') {
 				currIndex++;
