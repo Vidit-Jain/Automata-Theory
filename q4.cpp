@@ -37,8 +37,6 @@ NFA createNFA(int type) {
 				transitions.pb({{b.end_state, x.start_state}, 'E'});
 				currNFA.nfas.pb(x);
 			}
-			if (c == ')') 
-				break;
 			if (c == '*') {
 				NFA a = currNFA.nfas[currNFA.nfas.size() - 1];
 				NFA b = currNFA.nfas[currNFA.nfas.size() - 2];
@@ -48,6 +46,8 @@ NFA createNFA(int type) {
 				currIndex++;
 				break;
 			}
+			if (c == ')') 
+				break;
 		}
 		currNFA.end_state = currNFA.nfas[currNFA.nfas.size() - 1].end_state;
 		return currNFA;
