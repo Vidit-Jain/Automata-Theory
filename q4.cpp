@@ -76,12 +76,9 @@ int main(int argc, char* argv[]){
 	str = '(' + str + ')';
 	n = str.size();
 	NFA x = createNFA(0);
-	cout << currState + 1<< " " << transitions.size() << " " << 1 << "\n";
+	cout << currState + 1 << " " << transitions.size() << " " << 1 << "\n";
 	cout << x.end_state << "\n";
 	for (auto& s : transitions) {
 		cout << s.ff.ff << " " << s.ss << " " << s.ff.ss << "\n";
 	}
-	//for (auto& s : transitions) {
-	//	cout << s.ff.ff << " " << s.ff.ss << " " << s.ss << "\n";
-	//}
 }
