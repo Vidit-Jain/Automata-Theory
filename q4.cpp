@@ -8,10 +8,15 @@ typedef pair<int, int> ii;
 						freopen(y, "w", stdout);
 int currState = -1, currIndex = 0, n;
 set<pair<ii, char>> transitions;
-typedef struct nfa {
+typedef struct nfa NFA;
+struct nfa {
 	int start_state = -1, end_state = -1;
-	vector<struct nfa> nfas;
-} NFA;
+	int last_start = -1, last_end = -1;
+	void push(struct nfa x) {
+		last_start = x.start_state;
+		last_end = x.end_state;
+	}
+};
 
 string str;
 NFA createNFA(int type) {
@@ -20,30 +25,25 @@ NFA createNFA(int type) {
 	if (type == 1) {
 		NFA a;	
 		a.start_state = a.end_state = currNFA.start_state;
-		currNFA.nfas.pb(a);
-
+		currNFA.push(a);
 		for (; currIndex < n; currIndex++) {
 			char c = str[currIndex];
 			if (c >= 'a' && c <= 'z') {
 				NFA x;
 				x.start_state = ++currState;
 				x.end_state = ++currState;
-				NFA b = currNFA.nfas[currNFA.nfas.size() - 1];
-				transitions.insert({{b.end_state, x.start_state}, 'E'});
+				transitions.insert({{currNFA.last_end, x.start_state}, 'E'});
 				transitions.insert({{x.start_state, x.end_state}, c});
-				currNFA.nfas.pb(x);
+				currNFA.push(x);
 			}
 			if (c == '(') {
 				NFA x = createNFA(0);
-				NFA b = currNFA.nfas[currNFA.nfas.size() - 1];
-				transitions.insert({{b.end_state, x.start_state}, 'E'});
-				currNFA.nfas.pb(x);
+				transitions.insert({{currNFA.last_end, x.start_state}, 'E'});
+				currNFA.push(x);
 			}
 			if (c == '*') {
-				NFA a = currNFA.nfas[currNFA.nfas.size() - 1];
-				NFA b = currNFA.nfas[currNFA.nfas.size() - 2];
-				transitions.insert({{a.end_state, a.start_state}, 'E'});
-				transitions.insert({{a.start_state, a.end_state}, 'E'});
+				transitions.insert({{currNFA.last_start, currNFA.last_end}, 'E'});
+				transitions.insert({{currNFA.last_end, currNFA.last_start}, 'E'});
 			}
 			if (c == '+') {
 				currIndex++;
@@ -52,18 +52,16 @@ NFA createNFA(int type) {
 			if (c == ')') 
 				break;
 		}
-		currNFA.end_state = currNFA.nfas[currNFA.nfas.size() - 1].end_state;
+		currNFA.end_state = currNFA.last_end;
 		return currNFA;
 	}
 	else {
 		currIndex++;
 		currNFA.end_state = ++currState;
 		while (str[currIndex] != ')') {
-			currNFA.nfas.pb(createNFA(1));
-		}
-		for (auto& s : currNFA.nfas) {
-			transitions.insert({{currNFA.start_state, s.start_state}, 'E'});
-			transitions.insert({{s.end_state, currNFA.end_state}, 'E'});
+			currNFA.push(createNFA(1));
+			transitions.insert({{currNFA.start_state, currNFA.last_start}, 'E'});
+			transitions.insert({{currNFA.last_end, currNFA.end_state}, 'E'});
 		}
 	}
 	return currNFA;
